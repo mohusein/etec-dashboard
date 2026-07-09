@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function middleware(req: NextRequest) {
   const token = req?.cookies?.get("token")?.value;
   if (!token) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
   try {
     const { payload } = await jwtVerify(
@@ -14,11 +14,11 @@ export async function middleware(req: NextRequest) {
     if (payload?.role === "admin") {
       return NextResponse.next();
     } else {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/sign-in", req.url));
     }
   } catch (error) {
     console.error(error);
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 }
 

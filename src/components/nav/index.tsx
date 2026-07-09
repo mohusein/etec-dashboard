@@ -19,7 +19,7 @@ export default function Navbar() {
   const toggle = (): void => setShowAllContent((prevState) => !prevState);
   const logOut = (): void => {
     Cookies.remove("token");
-    navigate?.push("/");
+    navigate?.push("/sign-in");
   };
 
   /*---> Effects <---*/
