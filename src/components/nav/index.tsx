@@ -6,87 +6,137 @@ import { useEffect, useState } from "react";
 import { CiLogout } from "react-icons/ci";
 import { usePathname, useRouter } from "next/navigation";
 import { GrMenu } from "react-icons/gr";
+import { IoClose } from "react-icons/io5";
 import { links } from "@/data";
 
 export default function Navbar() {
-  /*---> States <---*/
-  const [showAllContent, setShowAllContent] = useState<boolean>(false);
-  const [displayState, setDisplayState] = useState<string>("");
+  const [open, setOpen] = useState<boolean>(false);
   const navigate = useRouter();
   const pathname = usePathname();
 
-  /*---> Functions <---*/
-  const toggle = (): void => setShowAllContent((prevState) => !prevState);
   const logOut = (): void => {
     Cookies.remove("token");
-    navigate?.push("/sign-in");
+    navigate.push("/sign-in");
   };
 
-  /*---> Effects <---*/
+  // Close drawer on route change
   useEffect(() => {
-    const stateMapping: { [key: string]: string } = {
-      "/admin/dashboard": "dashboard",
-      "/admin/products": "products",
-      "/admin/categories": "categories",
-      "/admin/purchased": "purchased",
-      "/admin/orders": "orders",
-      "/admin/clients": "clients",
-      "/admin/contacts": "contacts",
-    };
-    setDisplayState(stateMapping[pathname] || "");
+    setOpen(false);
   }, [pathname]);
+
+  const NavLinks = () => (
+    <ul className="flex flex-col gap-1">
+      {links.map((link, index) => {
+        const active = pathname === `/admin/${link.href}`;
+        return (
+          <li key={index}>
+            <Link
+              href={`/admin/${link.href}`}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                active
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              <link.icon className="text-[16px] shrink-0" />
+              {link.context}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
 
   return (
     <>
-      <div className="w-full lg:w-auto flex fixed sm:absolute lg:relative z-20">
-        <div className="w-full h-full relative flex justify-center lg:justify-start">
-          <div className="w-full px-6 py-6 flex z-50 lg:hidden fixed bottom-0">
-            <div className="w-full px-5 py-3 text-[25px] flex justify-between items-center shadow-md shadow-[#00000050] text-black rounded-full gap-5 bg-white">
-              <button onClick={toggle}>
-                <GrMenu />
-              </button>
-              <button onClick={logOut}>
-                <CiLogout />
-              </button>
-            </div>
-          </div>
-          <div
-            className={`w-full h-screen lg:h-auto py-8 px-[37px] lg:p-6 lg:pl-[35px] lg:pr-[100px] bg-white ${showAllContent ? "flex" : "hidden lg:flex"} flex-col justify-between border-r border-gray-200`}
+      {/* ── Desktop sidebar ─────────────────────────────────── */}
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 h-screen sticky top-0 border-r border-gray-200 bg-white">
+        <div className="px-5 py-5 border-b border-gray-100">
+          <span className="text-base font-bold tracking-tight">
+            etec<span className="text-gray-400 font-normal"> admin</span>
+          </span>
+        </div>
+
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-3 mb-2">
+            Menu
+          </p>
+          <NavLinks />
+        </nav>
+
+        <div className="px-3 py-4 border-t border-gray-100">
+          <button
+            onClick={logOut}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
-            <div className="w-full flex flex-col gap-3">
-              <h1 className="text-2xl lg:text-[22px] font-[700]">Navigation</h1>
-              <ul className="w-full flex flex-col gap-1 font-[600]">
-                {/* <!-- Links of the project --> */}
-                {links &&
-                  links?.map((link, index) => (
-                    <li
-                      key={index}
-                      className={`w-full flex items-center gap-[4px] lg:gap-[5px] rounded-md px-3 py-[7px] ${displayState === link?.context?.toLocaleLowerCase() && "bg-[#ececec]"}`}
-                      onClick={toggle}
-                    >
-                      <link.icon />
-                      <Link
-                        href={`/admin/${link.href}`}
-                        className="text-lg lg:text-base"
-                      >
-                        {link.context}
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-            {/* <!-- Button to log out of the account --> */}
-            <div className="lg:flex hidden fixed bottom-0 mb-8">
+            <CiLogout className="text-[18px] shrink-0" />
+            Sign out
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Mobile top bar ──────────────────────────────────── */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4">
+        <span className="text-base font-bold tracking-tight">
+          etec<span className="text-gray-400 font-normal"> admin</span>
+        </span>
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Open menu"
+        >
+          <GrMenu className="text-[18px]" />
+        </button>
+      </div>
+
+      {/* Mobile top-bar spacer so content isn't hidden behind it */}
+      <div className="lg:hidden h-14 shrink-0" />
+
+      {/* ── Mobile drawer overlay ───────────────────────────── */}
+      {open && (
+        <div
+          className="lg:hidden fixed inset-0 z-50 flex"
+          onClick={() => setOpen(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+
+          {/* Drawer */}
+          <div
+            className="relative w-64 h-full bg-white flex flex-col shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <span className="text-base font-bold">
+                etec<span className="text-gray-400 font-normal"> admin</span>
+              </span>
               <button
-                className="p-[11px] text-[25px] rounded-full shadow-[#00000050] shadow-md text-black"
-                onClick={logOut}
+                onClick={() => setOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <CiLogout />
+                <IoClose className="text-[18px]" />
+              </button>
+            </div>
+
+            <nav className="flex-1 px-3 py-4 overflow-y-auto">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 px-3 mb-2">
+                Menu
+              </p>
+              <NavLinks />
+            </nav>
+
+            <div className="px-3 py-4 border-t border-gray-100">
+              <button
+                onClick={logOut}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+              >
+                <CiLogout className="text-[18px] shrink-0" />
+                Sign out
               </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

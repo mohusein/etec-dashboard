@@ -49,8 +49,8 @@ export default function DashboardComponents() {
   }, [setProducts, setOrders, setPurchased, setClients, setLoading]);
   return (
     <>
-      <section className="w-full lg:w-[80%] px-8 pt-5 flex justify-center mb-5">
-        <div className="w-full lg:max-w-[70rem] flex flex-col gap-8">
+      <section className="w-full px-6 lg:px-10 pt-6 pb-10">
+        <div className="max-w-6xl mx-auto flex flex-col gap-8">
           {/* <!-- Title/Description of the page --> */}
           <Title
             title="Dashboard"

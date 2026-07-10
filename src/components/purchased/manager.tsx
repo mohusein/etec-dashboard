@@ -44,8 +44,8 @@ export default function PurchasedComponents() {
   }, [setPurchaseds, setLoading]);
   return (
     <>
-      <section className="w-full lg:w-[80%] px-8 py-5 flex justify-center mb-5">
-        <div className="w-full lg:max-w-[70rem] flex flex-col gap-8">
+      <section className="w-full px-6 lg:px-10 py-6">
+        <div className="max-w-6xl mx-auto flex flex-col gap-8">
           {/* <!-- Title/Description of the page --> */}
           <Title
             title="Purchased"
